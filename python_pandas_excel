@@ -1,0 +1,113 @@
+# importa biblioteca pandas e nomeia como "pd"
+import pandas as pd
+
+#leitura dos arquivos
+df1 = pd.read_excel("planilha1")
+df2 = pd.read_excel("planilha2")
+df3 = pd.read_excel("planilha3")
+df4 = pd.read_excel("planilha4")
+
+# juntando todos os arquivos
+df = pd.concat([df1, df2, df3, df4])
+
+# exibe as cinco primeiras linhas
+df.head()
+
+# exibe as cincos ultimas linhas
+df.tail()
+
+#verifica o tipo de dado de cada coluna
+df.dtypes
+
+#retorna linhas com valores faltantes e soma-os
+df.isnull().sum()
+
+#Substitui os valores nulos pela media - na coluna "vendas"
+df["Vendas"].fillna(df["Vendas"].mean(), inplace=True)
+
+# Substitui os valores por zero - da linha "vendas"
+df["Vendas"].fillna(0, inplace=True)
+
+#Apaga as linhas com valores nulos
+df.dropna(inplace=True)
+
+#Apaga as linhas com valores nulos com base em um unica coluna "vendas"
+df.dropna(subset=["Vendas"], inplace=True)
+
+# Remove as linhas que estejam com valores faltantes em todas as colunas
+df.dropna(how="all", inplace=True)
+
+# Criando nova coluna "Receita" que receberá a multiplicação da coluna vendas e Qtde
+df['Receita'] = df['Vendas'].mul(df['Qtde'])
+
+# Retorna maior receita
+df["Receita"].max()
+
+# Retorna menor receita
+df["Receita"].min()
+
+# Retorna as 3 linhas com maiores valores da Coluna Receita
+df.nlargest(3, "Receita")
+
+# Retorna as 3 linhas com menor valor com base na Coluna Receita
+df.smallest(3, "Receita")
+
+# Retorna o Agrupamento por cidade e soma os valores da receita
+df.groupby("Cidade")['Receita'].sum()
+
+# Ordenando conjunto de dados do maior para o menor (ascending=false) das 10 primeiras linhas da coluna receita
+df.sort_values('Receita', ascending=False).head(10)
+
+# Transformando a coluna de data em tipo inteiro
+df["Data"] = df["Data"].astype("int64")
+
+#verificando o tipo de dado de cada coluna
+df.dtypes
+
+# Transformando a coluna de data no formato data
+df["Data"] = pd.to_datetime(df["Data"])
+
+# Agrupamento por ano, somando a Receita
+df.groupby(df["Data"].dt.year)["Receita"].sum()
+
+# Criando uma nova coluna com o valor 'ano' da coluna 'data'
+df["Ano_venda"] = df["Data"].dt.year
+
+# retorna 5 linhas da tabela
+df.sample(5)
+
+# Extraindo mes e dia da coluna 'data'
+df["mes_vendas"], df["dia_vendas"] = (df["Data"].dt.month, df["Data"].dt.day)
+
+# Criando coluna de trimestre
+df["trimestre_venda"] = df['Data'].dt.quarter
+
+# Filtrando através da coluna Data o ano e mes das vendas
+vendas_marco_19 = df.loc(df["Data"].dt.year == 2019) & (df["Data"].dt.month == 3)
+
+# total de vendas em ordem decrescente
+df["LojaID"].value_counts(ascending=False)
+
+# grafico de barras
+df["LojaID"].value_counts(ascending=False).plot.bar()
+
+# grafico de barras horizontais do maior para o menor
+df["LojaID"].value_counts(ascending=True).plot.barh()
+
+# grafico em pizza -  somando toda receita por ano
+df.groupby(df["Data"].dt.year)["Receita"].sum().plot.pie()
+
+# Adicionando um titulo e alterando os nomes dos eixos -  Alterando a cor do grafico
+import matplotlib.pyplot as plt
+df["Cidade"].value.counts().plot.bar(Title= "Total de vendas por cidade", color= "red")
+plt.xlabel("Cidade")
+plt.ylabel("Total Vendas");
+
+#Alterando estilo
+plt.style.use("ggplot")
+
+df.groupby(df["mes_venda"])["Qtde"].sum().plot(title = "Total Produtos vendidos por mes")
+plt.xlabel("Mês")
+plt.ylabel("Total Produtos Vendidos")
+plt.legend();
+
